@@ -10,12 +10,13 @@
 #include "BufferManager.h"
 #include "Camera.h"
 #include "Particle.h"
+#include "Mesh.h"
 
 const unsigned int width = 1920;
 const unsigned int height = 1080;
 
 GLfloat vertices[] = {
-    // Cube 1
+    // Cube 1 (contrainer)
     // Positions          // Normals           // Texture Coords
     -1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 0
     -1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // 1
