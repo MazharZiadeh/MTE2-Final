@@ -1,6 +1,5 @@
 #include "MyShader.h"
 
-
 // Function to read the contents of a file
 std::string get_file_contents(const char* filename)
 {
@@ -70,7 +69,7 @@ void Shader::compileErrors(unsigned int shader, const char* type)
 {
 	GLint hasCompiled;
 	char infoLog[1024];
-	if (type != "PROGRAM")
+	if (strcmp(type, "PROGRAM") != 0)
 	{
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &hasCompiled);
 		if (hasCompiled == GL_FALSE)
