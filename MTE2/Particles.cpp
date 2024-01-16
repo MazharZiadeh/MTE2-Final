@@ -1,14 +1,14 @@
-#include "Particle.h"
+#include "Particles.h"
 #include <glm/gtc/random.hpp>
 
-Particle::Particle(glm::vec3 pos, glm::vec3 vel, float rad)
+Particles::Particles(glm::vec3 pos, glm::vec3 vel, float rad)
     : position(pos), velocity(vel), radius(rad) {}
 
-void Particle::update(float deltaTime) {
+void Particles::update(float deltaTime) {
     position += velocity * deltaTime;
 }
 
-void Particle::handleWallCollisions() {
+void Particles::handleWallCollisions() {
     for (int i = 0; i < 3; ++i) {
         if (position[i] - radius < -1.0f || position[i] + radius > 1.0f) {
             velocity[i] = -velocity[i];
@@ -16,7 +16,7 @@ void Particle::handleWallCollisions() {
     }
 }
 
-void Particle::handleParticleCollisions(Particle& other) {
+void Particles::handleParticlesCollisions(Particles& other) {
     glm::vec3 delta = other.getPosition() - position;
     float distance = glm::length(delta);
     float minDistance = radius + other.getRadius();
@@ -36,10 +36,10 @@ void Particle::handleParticleCollisions(Particle& other) {
     }
 }
 
-glm::vec3 Particle::getPosition() const {
+glm::vec3 Particles::getPosition() const {
     return position;
 }
 
-float Particle::getRadius() const {
+float Particles::getRadius() const {
     return radius;
 }

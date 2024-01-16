@@ -4,62 +4,62 @@
 
 namespace BufferManagerParticles {
 
-	ParticleEBO::ParticleEBO(GLuint* indicesParticle, GLsizeiptr size) {
+	ParticlesEBO::ParticlesEBO(GLuint* indicesParticles, GLsizeiptr size) {
 		glGenBuffers(1, &ID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indicesParticle, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indicesParticles, GL_STATIC_DRAW);
 	}
 
-	void ParticleEBO::Bind() {
+	void ParticlesEBO::ParticlesBind() {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
 	}
 
-	void ParticleEBO::Unbind() {
+	void ParticlesEBO::ParticlesUnbind() {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	void ParticleEBO::Delete() {
+	void ParticlesEBO::ParticlesDelete() {
 		glDeleteBuffers(1, &ID);
 	}
 
-	ParticleVAO::ParticleVAO() {
+	ParticlesVAO::ParticlesVAO() {
 		glGenVertexArrays(1, &ID);
 	}
 
-	void ParticleVAO::LinkAttrib(ParticleVBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
-		VBO.Bind();
+	void ParticlesVAO::LinkAttrib(ParticlesVBO& ParticlesVBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
+		ParticlesVBO.ParticlesBind();
 		glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
 		glEnableVertexAttribArray(layout);
-		VBO.Unbind();
+		ParticlesVBO.ParticlesUnbind();
 	}
 
-	void ParticleVAO::Bind() {
+	void ParticlesVAO::ParticlesBind() {
 		glBindVertexArray(ID);
 	}
 
-	void ParticleVAO::Unbind() {
+	void ParticlesVAO::ParticlesUnbind() {
 		glBindVertexArray(0);
 	}
 
-	void ParticleVAO::Delete() {
+	void ParticlesVAO::ParticlesDelete() {
 		glDeleteVertexArrays(1, &ID);
 	}
 
-	ParticleVBO::ParticleVBO(GLfloat* verticesParticle, GLsizeiptr size) {
+	ParticlesVBO::ParticlesVBO(GLfloat* verticesParticles, GLsizeiptr size) {
 		glGenBuffers(1, &ID);
 		glBindBuffer(GL_ARRAY_BUFFER, ID);
-		glBufferData(GL_ARRAY_BUFFER, size, verticesParticle, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, verticesParticles, GL_STATIC_DRAW);
 	}
 
-	void ParticleVBO::Bind() {
+	void ParticlesVBO::ParticlesBind() {
 		glBindBuffer(GL_ARRAY_BUFFER, ID);
 	}
 
-	void ParticleVBO::Unbind() {
+	void ParticlesVBO::ParticlesUnbind() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void ParticleVBO::Delete() {
+	void ParticlesVBO::ParticlesDelete() {
 		glDeleteBuffers(1, &ID);
 	}
 

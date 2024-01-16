@@ -12,6 +12,7 @@ namespace BufferManager {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 	}
 
+
 	/**
 	 * @brief Binds the element buffer object (EBO).
 	 */

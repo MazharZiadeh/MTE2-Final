@@ -5,38 +5,36 @@
 
 namespace BufferManagerParticles {
 
-	class ParticleEBO {
+	class ParticlesEBO {
 	public:
 		GLuint ID;
 
-		ParticleEBO(GLuint* indicesParticle, GLsizeiptr size);
+		ParticlesEBO(GLuint* indicesParticles, GLsizeiptr size);
 
-		void Bind();
-		void Unbind();
-		void Delete();
+		void ParticlesBind();
+		void ParticlesUnbind();
+		void ParticlesDelete();
 	};
 
-	class ParticleVAO {
+	class ParticlesVAO {
 	public:
 		GLuint ID;
-
-		ParticleVAO();
-
-		void LinkAttrib(class ParticleVBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
-		void Bind();
-		void Unbind();
-		void Delete();
+		ParticlesVAO();
+		void LinkAttrib(class ParticlesVBO& ParticlesVBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
+		void ParticlesBind();
+		void ParticlesUnbind();
+		void ParticlesDelete();
 	};
 
-	class ParticleVBO {
+	class ParticlesVBO {
 	public:
 		GLuint ID;
 
-		ParticleVBO(GLfloat* verticesParticle, GLsizeiptr size);
+		ParticlesVBO(GLfloat* verticesParticles, GLsizeiptr size);
 
-		void Bind();
-		void Unbind();
-		void Delete();
+		void ParticlesBind();
+		void ParticlesUnbind();
+		void ParticlesDelete();
 	};
 
 } // namespace BufferManagerParticles

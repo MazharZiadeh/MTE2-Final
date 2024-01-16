@@ -10,13 +10,13 @@
 #include "BufferManager.h"
 #include "BufferManagerParticles.h"
 #include "Camera.h"
-#include "Particle.h"
+#include "Particles.h"
 
 const unsigned int width = 1920;
 const unsigned int height = 1080;
 
 GLfloat vertices[] = {
-    // Cube 1 (contrainer)
+    // Cube 1 (container)
     // Positions          // Normals           // Texture Coords
     -1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 0
     -1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // 1
@@ -43,8 +43,8 @@ GLuint indicesCube[] = {
     5, 7, 6
 };
 
-GLfloat verticesParticle[] = {
-    // Cube 1 (contrainer)
+GLfloat verticesParticles[] = {
+    // Cube 1 (container)
     // Positions          // Normals           // Texture Coords
     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 0
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // 1
@@ -56,7 +56,7 @@ GLfloat verticesParticle[] = {
      0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // 7
 };
 
-GLuint indicesParticle[] = {
+GLuint indicesParticles[] = {
     0, 1, 2, // front face (Cube 1)
     0, 2, 3,
     4, 5, 1, // left face (Cube 1)
@@ -64,15 +64,14 @@ GLuint indicesParticle[] = {
     3, 2, 6, // right face (Cube 1)
     3, 6, 7,
     1, 5, 6, // top face (Cube 1)
-    1, 6, 2,
+    1, 6,2,
     4, 0, 3, // bottom face (Cube 1)
     4, 3, 7,
     5, 4, 7, // back face (Cube 1)
     5, 7, 6
 };
 
-
-std::vector<Particle> particles;
+std::vector<Particles> particle;
 
 void initializeParticles() {
     // Seed for random number generation
@@ -93,7 +92,7 @@ void initializeParticles() {
 
         float radius = 0.05f;
 
-        particles.emplace_back(position, velocity, radius);
+        particle.emplace_back(position, velocity, radius);
     }
 }
 
@@ -128,19 +127,17 @@ int main() {
     BufferManager::VAO VAO1;
     VAO1.Bind();
 
-
-    // ((Create and set up Vertex Array Object (VAO) for particles)
-    BufferManagerParticles::ParticleVAO VAO2;
-    VAO2.Bind();
+    // Create and set up Vertex Array Object (VAO) for particles
+    BufferManagerParticles::ParticlesVAO particlesVAO1;
+    particlesVAO1.ParticlesBind();
 
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for Cube 1
     BufferManager::VBO VBO1(vertices, sizeof(vertices));
     BufferManager::EBO EBO1(indicesCube, sizeof(indicesCube));
 
-
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for particles
-    BufferManagerParticles::ParticleVBO VBO2(verticesParticle, sizeof(verticesParticle));
-    BufferManagerParticles::ParticleEBO EBO2(indicesParticle, sizeof(indicesParticle));
+    BufferManagerParticles::ParticlesVBO particlesVBO1(verticesParticles, sizeof(verticesParticles));
+    BufferManagerParticles::ParticlesEBO particlesEBO1(indicesParticles, sizeof(indicesParticles));
 
     // Link attributes in VAO to the VBO for Cube 1
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
@@ -150,14 +147,13 @@ int main() {
     VBO1.Unbind();
     EBO1.Unbind();
 
-
     // Link attributes in VAO to the VBO for particles
-    VAO2.LinkAttrib(VBO2, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    VAO2.LinkAttrib(VBO2, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    VAO2.LinkAttrib(VBO2, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    VAO2.Unbind();
-    VBO2.Unbind();
-    EBO2.Unbind();
+    particlesVAO1.LinkAttrib(particlesVBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    particlesVAO1.LinkAttrib(particlesVBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    particlesVAO1.LinkAttrib(particlesVBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    particlesVAO1.ParticlesUnbind();
+    particlesVBO1.ParticlesUnbind();
+    particlesEBO1.ParticlesUnbind();
 
     // Enable depth testing and set up the camera
     glEnable(GL_DEPTH_TEST);
@@ -191,40 +187,37 @@ int main() {
         glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
         VAO1.Unbind(); //unbind VAO
 
-
         // Update and draw particles
-        for (auto& particle : particles) {
+        for (auto& particles : particle) {
             // Update particle position based on velocity and time (the bigger the delta time, the faster the motion)
             // Smaller delta time can result in smoother motion but may require more frequent updates
-            particle.update(0.01f); // Adjust delta time as needed
+            particles.update(0.01f); // Adjust delta time as needed
 
             // Handle collisions with walls or other objects
-            particle.handleWallCollisions();
+            particles.handleWallCollisions();
 
             // Draw particle (replace this with actual rendering code)
             // Translate the particle model matrix to its current position
             // Scale the particle to make it smaller (the smaller the scale, the smaller the particle)
             // Adjust both translation and scale factors as needed
-            glm::mat4 particleModel = glm::translate(glm::mat4(1.0), particle.getPosition())
-                * glm::scale(glm::mat4(1.0f), glm::vec3(particle.getRadius())); // Adjust scale as needed
+            glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particles.getPosition())
+                * glm::scale(glm::mat4(2.0f), glm::vec3(particles.getRadius())); // Adjust scale as needed
 
             // Set the model matrix in the shader program
-            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(particleModel));
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(particlesModel));
 
             // Bind VAO and draw a small cube for each particle
-            VAO2.Bind();
-            glDrawElements(GL_TRIANGLES, sizeof(indicesParticle) / sizeof(int), GL_UNSIGNED_INT, 0);
+            particlesVAO1.ParticlesBind();
+            glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
 
             // Unbind VAO for the small cube
-            VAO2.Unbind();
+            particlesVAO1.ParticlesUnbind();
         }
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-
 
     // Print OpenGL version and extensions
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
@@ -234,9 +227,9 @@ int main() {
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
-    VAO2.Delete();
-    VBO2.Delete();
-    EBO2.Delete();
+    particlesVAO1.ParticlesDelete();
+    particlesVBO1.ParticlesDelete();
+    particlesEBO1.ParticlesDelete();
     shaderProgram.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();

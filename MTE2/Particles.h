@@ -1,16 +1,16 @@
-#ifndef PARTICLE_H
-#define PARTICLE_H
+#ifndef PARTICLES_H
+#define PARTICLES_H
 
 #include <glm/glm.hpp>
 
-class Particle {
+class Particles {
 public:
-    Particle();
-    Particle(glm::vec3 pos, glm::vec3 vel, float rad);
+    Particles();
+    Particles(glm::vec3 pos, glm::vec3 vel, float rad);
 
     void update(float deltaTime);
     void handleWallCollisions();
-    void handleParticleCollisions(Particle& other);
+    void handleParticlesCollisions(Particles& other);
 
     glm::vec3 getPosition() const;
     void setPosition(const glm::vec3& pos);
