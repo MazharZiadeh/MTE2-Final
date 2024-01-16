@@ -7,13 +7,13 @@
 
 class Mesh {
 public:
-    Mesh(const GLfloat* vertices, GLsizei verticesSize, const GLuint* indices, GLsizei indicesSize);
+    Mesh(const GLfloat* verticesParticle, GLsizei verticesSize, const GLuint* indicesParticle, GLsizei indicesSize);
     ~Mesh();
 
     void Draw();
 
 private:
-    GLuint VAO, VBO, EBO;
+    GLuint ParticleVAO, ParticleVBO, ParticleEBO;
     GLsizei indexCount;
 
     void setupMesh();

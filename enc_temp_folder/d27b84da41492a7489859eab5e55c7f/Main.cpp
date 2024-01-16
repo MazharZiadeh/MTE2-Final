@@ -185,11 +185,23 @@ int main() {
         // Draw the main cube (replace this with actual rendering code)
         glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)); // Adjust scale as needed
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
-
         // Bind VAO, then texture, and draw the main cube
         VAO1.Bind();
+
+        // Draw the cube
         glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
-        VAO1.Unbind(); //unbind VAO
+
+        // Check for OpenGL errors
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            // Handle the error (you might want to log it or print a message)
+            // For simplicity, I'll just print an error message to the console
+            std::cerr << "OpenGL error: " << error << std::endl;
+        }
+
+        // Unbind the VAO
+        VAO1.Unbind();
+
 
 
         // Update and draw particles

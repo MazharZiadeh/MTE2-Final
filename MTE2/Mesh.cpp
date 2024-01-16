@@ -1,18 +1,18 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const GLfloat* vertices, GLsizei verticesSize, const GLuint* indices, GLsizei indicesSize)
+Mesh::Mesh(const GLfloat* verticesParticle, GLsizei verticesSize, const GLuint* indicesParticle, GLsizei indicesSize)
     : indexCount(indicesSize / sizeof(GLuint)) {
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    glGenVertexArrays(1, &ParticleVAO);
+    glGenBuffers(1, &ParticleVBO);
+    glGenBuffers(1, &ParticleEBO);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(ParticleVAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, verticesSize, vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, ParticleVBO);
+    glBufferData(GL_ARRAY_BUFFER, verticesSize, verticesParticle, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ParticleEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSize, indicesParticle, GL_STATIC_DRAW);
 
     setupMesh();
 
@@ -20,13 +20,13 @@ Mesh::Mesh(const GLfloat* vertices, GLsizei verticesSize, const GLuint* indices,
 }
 
 Mesh::~Mesh() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &ParticleVAO);
+    glDeleteBuffers(1, &ParticleVBO);
+    glDeleteBuffers(1, &ParticleEBO);
 }
 
 void Mesh::Draw() {
-    glBindVertexArray(VAO);
+    glBindVertexArray(ParticleVAO);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
