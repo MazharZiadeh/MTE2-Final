@@ -44,7 +44,7 @@ GLuint indicesCube[] = {
 };
 
 GLfloat verticesParticles[] = {
-    // Cube 1 (container)
+    // particles
     // Positions          // Normals           // Texture Coords
     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 0
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // 1
@@ -72,6 +72,13 @@ GLuint indicesParticles[] = {
 };
 
 std::vector<Particles> particle;
+
+void CheckOpenGLError(const char* operation) {
+    GLenum error;
+    while ((error = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "OpenGL Error (" << operation << "): " << error << std::endl;
+    }
+}
 
 void initializeParticles() {
     // Seed for random number generation
@@ -189,17 +196,13 @@ int main() {
 
         // Update and draw particles
         for (auto& particles : particle) {
-            // Update particle position based on velocity and time (the bigger the delta time, the faster the motion)
-            // Smaller delta time can result in smoother motion but may require more frequent updates
+            // Update particle position based on velocity and time
             particles.update(0.01f); // Adjust delta time as needed
 
             // Handle collisions with walls or other objects
             particles.handleWallCollisions();
 
             // Draw particle (replace this with actual rendering code)
-            // Translate the particle model matrix to its current position
-            // Scale the particle to make it smaller (the smaller the scale, the smaller the particle)
-            // Adjust both translation and scale factors as needed
             glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particles.getPosition())
                 * glm::scale(glm::mat4(2.0f), glm::vec3(particles.getRadius())); // Adjust scale as needed
 
@@ -209,8 +212,6 @@ int main() {
             // Bind VAO and draw a small cube for each particle
             particlesVAO1.ParticlesBind();
             glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
-
-            // Unbind VAO for the small cube
             particlesVAO1.ParticlesUnbind();
         }
 
@@ -218,11 +219,6 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    // Print OpenGL version and extensions
-    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
-    std::cout << "OpenGL Extensions: " << glGetString(GL_EXTENSIONS) << std::endl;
-
     // Clean up resources
     VAO1.Delete();
     VBO1.Delete();

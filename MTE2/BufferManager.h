@@ -23,6 +23,8 @@ namespace BufferManager {
 		void Delete(); // Deletes the VAO
 	};
 
+
+
 	class VBO {
 	public:
 		GLuint ID; // Unique identifier for the Vertex Buffer Object (VBO)
