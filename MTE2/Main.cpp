@@ -57,21 +57,21 @@ GLfloat verticesParticles[] = {
 };
 
 GLuint indicesParticles[] = {
-    0, 1, 2, // front face (Cube 1)
+    0, 1, 2, // front face
     0, 2, 3,
-    4, 5, 1, // left face (Cube 1)
+    4, 5, 1, // left face
     4, 1, 0,
-    3, 2, 6, // right face (Cube 1)
+    3, 2, 6, // right face
     3, 6, 7,
-    1, 5, 6, // top face (Cube 1)
-    1, 6,2,
-    4, 0, 3, // bottom face (Cube 1)
+    1, 5, 6, // top face
+    1, 6, 2,
+    4, 0, 3, // bottom face
     4, 3, 7,
-    5, 4, 7, // back face (Cube 1)
+    5, 4, 7, // back face
     5, 7, 6
 };
 
-std::vector<Particles> particle;
+std::vector<Particles> currentParticles;
 
 void CheckOpenGLError(const char* operation) {
     GLenum error;
@@ -83,8 +83,7 @@ void CheckOpenGLError(const char* operation) {
 void initializeParticles() {
     // Seed for random number generation
     std::srand(static_cast<unsigned>(std::time(nullptr)));
-
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 100; ++i) {
         glm::vec3 position(
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
@@ -99,7 +98,7 @@ void initializeParticles() {
 
         float radius = 0.05f;
 
-        particle.emplace_back(position, velocity, radius);
+        currentParticles.emplace_back(position, velocity, radius);
     }
 }
 
@@ -185,47 +184,49 @@ int main() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // Activate the shader programs
-         shaderProgram.Activate();
-         newshaderProgram.Activate();
-
-        // Activate the shader program cube
-
-        // Process camera inputs and set camera matrix in the shader
+        shaderProgram.Activate();
         camera.Inputs(window);
         camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
-
         // Draw the main cube 
         glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); // Adjust scale as needed
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
         VAO1.Bind();
         EBO1.Bind();
+        CheckOpenGLError("Before drawing main cube");
         glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
-        VAO1.Unbind();
+        CheckOpenGLError("After drawing main cube");
         EBO1.Unbind();
+        VAO1.Unbind();
 
+
+        // Activate the particle shader program
+        newshaderProgram.Activate();
+        camera.Matrix(45.0f, 0.1f, 100.0f, newshaderProgram, "camMatrixParticles");
         // Update and draw particles
-            for (auto& particles : particle) {
-                // Update particle position based on velocity and time
-               particles.update(0.001f); // Adjust delta time as needed
-                // Handle collisions with walls or other objects
-               particles.handleWallCollisions();
+        for (auto& particle : currentParticles) {
+            particle.update(0.001f); // Adjust delta time as needed
+            particle.handleWallCollisions();
 
-                // Draw particles
-               glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particles.getPosition())
-                   * glm::scale(glm::mat4(1.0f), glm::vec3(particles.getRadius())); // Adjust scale as needed
+            for (auto& other : currentParticles) {
+                if (&particle != &other) {
+					particle.handleParticlesCollisions(other);
+				}
+			}
+            // Draw particles
+            glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particle.getPosition())
+                * glm::scale(glm::mat4(1.0f), glm::vec3(particle.getRadius())); // Adjust scale as needed
 
-                // Set the model matrix in the shader program
-               glUniformMatrix4fv(glGetUniformLocation(newshaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(particlesModel));
+            // Set the model matrix in the shader program
+            glUniformMatrix4fv(glGetUniformLocation(newshaderProgram.ID, "modelParticles"), 1, GL_FALSE, glm::value_ptr(particlesModel));
 
-                // Bind VAO and draw a small cube for each particle
-               particlesVAO1.ParticlesBind();
-               particlesEBO1.ParticlesBind(); // Add this line to bind the particles EBO
-               glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
-               particlesEBO1.ParticlesUnbind(); // Unbind the particles EBO
-               particlesVAO1.ParticlesUnbind();
-               CheckOpenGLError("small cubes Drawing");
+            // Bind VAO and draw a small cube for each particle
+            particlesVAO1.ParticlesBind();
+            particlesEBO1.ParticlesBind();
+            glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
+            particlesEBO1.ParticlesUnbind();
+            particlesVAO1.ParticlesUnbind();
+        }
 
-            }
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
@@ -239,8 +240,8 @@ int main() {
     particlesVBO1.ParticlesDelete();
     particlesEBO1.ParticlesDelete();
     shaderProgram.Delete();
+    newshaderProgram.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
-
     return 0;
 }

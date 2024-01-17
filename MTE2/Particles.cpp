@@ -27,11 +27,20 @@ void Particles::handleParticlesCollisions(Particles& other) {
         float impactSpeed = glm::dot(relativeVelocity, normal);
 
         if (impactSpeed > 0) {
+            // Adjust the restitution for more elasticity
             float restitution = 1.0f; // Adjust as needed
             glm::vec3 collisionImpulse = (2.0f * impactSpeed / (1 + restitution)) * normal;
 
+            // Separate the particles slightly after collision to avoid sticking
+            float separationDistance = 0.03f; // Adjust as needed
+            glm::vec3 separation = separationDistance * normal;
+
             velocity += collisionImpulse;
             other.velocity -= collisionImpulse;
+
+            // Move particles apart to avoid sticking
+            position -= 0.5f * separation;
+            other.position += 0.5f * separation;
         }
     }
 }
