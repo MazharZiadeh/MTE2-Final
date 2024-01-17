@@ -5,11 +5,11 @@ namespace BufferManager {
 	/**
 	 * @brief The BufferManager namespace provides classes for managing OpenGL buffers and vertex arrays.
 	 */
-	EBO::EBO(GLuint* indices, GLsizeiptr size)
+	EBO::EBO(GLuint* indicesCube, GLsizeiptr size)
 	{
 		glGenBuffers(1, &ID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indicesCube, GL_STATIC_DRAW);
 	}
 
 

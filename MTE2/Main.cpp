@@ -84,7 +84,7 @@ void initializeParticles() {
     // Seed for random number generation
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 10; ++i) {
         glm::vec3 position(
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
@@ -127,8 +127,11 @@ int main() {
     // Set the viewport dimensions
     glViewport(0, 0, width, height);
 
-    // Create shader program and set up OpenGL settings
-    Shader shaderProgram("default.vert", "default.frag");
+    // Create shader program and set up OpenGL settings for cube 
+    Shader shaderProgram("cube.vert", "cube.frag");
+    // Create shader program and set up OpenGL settings for particles  
+    Shader newshaderProgram("particles.vert", "particles.frag");
+
 
     // Create and set up Vertex Array Object (VAO) for Cube 1
     BufferManager::VAO VAO1;
@@ -161,10 +164,13 @@ int main() {
     particlesVAO1.ParticlesUnbind();
     particlesVBO1.ParticlesUnbind();
     particlesEBO1.ParticlesUnbind();
-
-    // Enable depth testing and set up the camera
+    // Enable depth testing
     glEnable(GL_DEPTH_TEST);
-    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+
+    // Set the depth function to less than or equal
+    glDepthFunc(GL_LEQUAL);
+
+    Camera camera(width, height, glm::vec3(0.0f, 0.0f, 3.0f));  // Move the camera back along the z-axis
 
     // Initialize particles
     initializeParticles();
@@ -178,42 +184,48 @@ int main() {
         // Enable wireframe mode
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        // Activate the shader program
-        shaderProgram.Activate();
+        // Activate the shader programs
+         shaderProgram.Activate();
+         newshaderProgram.Activate();
+
+        // Activate the shader program cube
 
         // Process camera inputs and set camera matrix in the shader
         camera.Inputs(window);
         camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
 
-        // Draw the main cube (replace this with actual rendering code)
-        glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)); // Adjust scale as needed
+        // Draw the main cube 
+        glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); // Adjust scale as needed
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
-
-        // Bind VAO, then texture, and draw the main cube
         VAO1.Bind();
+        EBO1.Bind();
         glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
-        VAO1.Unbind(); //unbind VAO
+        VAO1.Unbind();
+        EBO1.Unbind();
 
         // Update and draw particles
-        for (auto& particles : particle) {
-            // Update particle position based on velocity and time
-            particles.update(0.01f); // Adjust delta time as needed
+            for (auto& particles : particle) {
+                // Update particle position based on velocity and time
+               particles.update(0.001f); // Adjust delta time as needed
+                // Handle collisions with walls or other objects
+               particles.handleWallCollisions();
 
-            // Handle collisions with walls or other objects
-            particles.handleWallCollisions();
+                // Draw particles
+               glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particles.getPosition())
+                   * glm::scale(glm::mat4(1.0f), glm::vec3(particles.getRadius())); // Adjust scale as needed
 
-            // Draw particle (replace this with actual rendering code)
-            glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particles.getPosition())
-                * glm::scale(glm::mat4(2.0f), glm::vec3(particles.getRadius())); // Adjust scale as needed
+                // Set the model matrix in the shader program
+               glUniformMatrix4fv(glGetUniformLocation(newshaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(particlesModel));
 
-            // Set the model matrix in the shader program
-            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(particlesModel));
+                // Bind VAO and draw a small cube for each particle
+               particlesVAO1.ParticlesBind();
+               particlesEBO1.ParticlesBind(); // Add this line to bind the particles EBO
+               glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
+               particlesEBO1.ParticlesUnbind(); // Unbind the particles EBO
+               particlesVAO1.ParticlesUnbind();
+               CheckOpenGLError("small cubes Drawing");
 
-            // Bind VAO and draw a small cube for each particle
-            particlesVAO1.ParticlesBind();
-            glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
-            particlesVAO1.ParticlesUnbind();
-        }
+            }
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);

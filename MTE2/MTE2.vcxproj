@@ -151,8 +151,10 @@
     <ClInclude Include="Particles.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.frag" />
-    <None Include="default.vert" />
+    <None Include="cube.frag" />
+    <None Include="cube.vert" />
+    <None Include="Particles.frag" />
+    <None Include="Particles.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

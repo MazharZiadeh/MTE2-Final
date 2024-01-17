@@ -7,7 +7,7 @@ namespace BufferManager {
 	class EBO {
 	public:
 		GLuint ID; // Unique identifier for the Element Buffer Object (EBO)
-		EBO(GLuint* indices, GLsizeiptr size); // Constructor for EBO, takes an array of indices and size as parameters
+		EBO(GLuint* indicesCube, GLsizeiptr size); // Constructor for EBO, takes an array of indicesCube and size as parameters
 		void Bind(); // Binds the EBO
 		void Unbind(); // Unbinds the EBO
 		void Delete(); // Deletes the EBO

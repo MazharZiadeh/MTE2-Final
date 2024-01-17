@@ -58,10 +58,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.frag">
+    <None Include="cube.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="default.vert">
+    <None Include="cube.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Particles.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Particles.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

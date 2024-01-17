@@ -5,7 +5,7 @@ layout (location = 0) in vec3 aPos;
 // Colors
 layout (location = 1) in vec3 aColor;
 // Texture Coordinates
-layout (location = 2) in vec2 aTex; // Change this to aTex
+layout (location = 2) in vec2 aTexCoord; // <-- Change this to aTex
 
 // Outputs the color for the Fragment Shader
 out vec3 color;
@@ -18,10 +18,10 @@ uniform mat4 model;
 
 void main()
 {
-    // Combines the camera matrix and model matrix to transform the vertex position
-    gl_Position = camMatrix * model * vec4(aPos, 1.0);
-    // Assigns the colors from the Vertex Data to "color"
-    color = aColor;
-    // Assigns the texture coordinates from the Vertex Data to "texCoord"
-    texCoord = aTex; // Change this to aTex
+	// Combines the camera matrix and model matrix to transform the vertex position
+	gl_Position = camMatrix * model * vec4(aPos, 1.0);
+	// Assigns the colors from the Vertex Data to "color"
+	color = aColor;
+	// Assigns the texture coordinates from the Vertex Data to "texCoord"
+	texCoord = aTexCoord; // <-- Change this to aTex
 }

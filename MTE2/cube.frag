@@ -1,3 +1,4 @@
+
 #version 330 core
 
 // Outputs colors in RGBA
