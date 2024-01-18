@@ -76,7 +76,7 @@ std::vector<Particles> currentParticles;
 void initializeParticles() {
     // Seed for random number generation
     std::srand(static_cast<unsigned>(std::time(nullptr)));
-    for (int i = 0; i < 60; ++i) {
+    for (int i = 0; i < 10; ++i) {
         glm::vec3 position(
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
@@ -177,41 +177,29 @@ int main() {
     // Main rendering loop
     while (!glfwWindowShouldClose(window)) {
         // Clear the color and depth buffers
-        CheckOpenGLError("before clear buffers");
         glClearColor(0.0f, 0.0f, 0.2f, 1.0f);  // Black-blue color in RGBA
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        CheckOpenGLError("after clear buffers");
 
         // Enable wireframe mode
-        CheckOpenGLError("before enable wireframe mode");
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        CheckOpenGLError("after enable wireframe mode");
 
         // Activate the shader programs
-        CheckOpenGLError("before activate shader program");
         shaderProgram.Activate();
         camera.Inputs(window);
         camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
-        CheckOpenGLError("after activate shader program");
 
         // Draw the main cube 
         glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); // Adjust scale as needed
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
-        CheckOpenGLError("just before binding");
         VAO1.Bind();
         EBO1.Bind();
-        CheckOpenGLError("before draw main cube and binding");
         glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
-        CheckOpenGLError("after draw main cube and before unbinding");
-        //EBO1.Unbind();
-        //VAO1.Unbind();
-        CheckOpenGLError("after draw main cube and unbinding");
+        EBO1.Unbind();
+        VAO1.Unbind();
 
         // Activate the particle shader program
-        CheckOpenGLError("before particle shader program");
         newshaderProgram.Activate();
         camera.Matrix(45.0f, 0.1f, 100.0f, newshaderProgram, "camMatrixParticles");
-        CheckOpenGLError("after activate particle shader program");
         // Update and draw particles
         for (auto& particle : currentParticles) {
             particle.update(0.01f); // Adjust delta time as needed
@@ -220,9 +208,9 @@ int main() {
 
             for (auto& other : currentParticles) {
                 if (&particle != &other) {
-					particle.handleParticlesCollisions(other);
-				}
-			}
+                    particle.handleParticlesCollisions(other);
+                }
+            }
             // Draw particles
             glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particle.getPosition())
                 * glm::scale(glm::mat4(1.0f), glm::vec3(particle.getRadius())); // Adjust scale as needed
@@ -234,16 +222,13 @@ int main() {
             particlesVAO1.ParticlesBind();
             particlesEBO1.ParticlesBind();
             glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
-            //particlesEBO1.ParticlesUnbind();
-            //particlesVAO1.ParticlesUnbind();
-            CheckOpenGLError("after draw particles and then unbding ");
+            particlesEBO1.ParticlesUnbind();
+            particlesVAO1.ParticlesUnbind();
         }
-        CheckOpenGLError("before swapping buffer");
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
-        CheckOpenGLError("after swapping buffer");
 
     }
     // Clean up resources
