@@ -8,6 +8,6 @@ in vec3 color;
 
 void main()
 {
-    // Assign a color directly to FragColor without using textures
-    FragColor = vec4(color, 1.0);
+    // Assign the color orange to FragColor without using textures
+    FragColor = vec4(1.0, 0.5, 0.0, 1.0); // Orange color in RGBA format
 }

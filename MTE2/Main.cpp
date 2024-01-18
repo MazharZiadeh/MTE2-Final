@@ -83,7 +83,7 @@ void CheckOpenGLError(const char* operation) {
 void initializeParticles() {
     // Seed for random number generation
     std::srand(static_cast<unsigned>(std::time(nullptr)));
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 60; ++i) {
         glm::vec3 position(
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
@@ -177,7 +177,7 @@ int main() {
     // Main rendering loop
     while (!glfwWindowShouldClose(window)) {
         // Clear the color and depth buffers
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.2f, 1.0f);  // Black-blue color in RGBA
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Enable wireframe mode
@@ -204,7 +204,7 @@ int main() {
         camera.Matrix(45.0f, 0.1f, 100.0f, newshaderProgram, "camMatrixParticles");
         // Update and draw particles
         for (auto& particle : currentParticles) {
-            particle.update(0.001f); // Adjust delta time as needed
+            particle.update(0.01f); // Adjust delta time as needed
             particle.handleWallCollisions();
 
             for (auto& other : currentParticles) {
