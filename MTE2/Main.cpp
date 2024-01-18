@@ -73,13 +73,6 @@ GLuint indicesParticles[] = {
 
 std::vector<Particles> currentParticles;
 
-void CheckOpenGLError(const char* operation) {
-    GLenum error;
-    while ((error = glGetError()) != GL_NO_ERROR) {
-        std::cerr << "OpenGL Error (" << operation << "): " << error << std::endl;
-    }
-}
-
 void initializeParticles() {
     // Seed for random number generation
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -101,6 +94,14 @@ void initializeParticles() {
         currentParticles.emplace_back(position, velocity, radius);
     }
 }
+// Function to check OpenGL errors
+void CheckOpenGLError(const char* operation) {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cerr << "OpenGL error after " << operation << ": " << error << std::endl;
+    }
+}
+
 
 int main() {
     // Initialize GLFW
@@ -130,7 +131,6 @@ int main() {
     Shader shaderProgram("cube.vert", "cube.frag");
     // Create shader program and set up OpenGL settings for particles  
     Shader newshaderProgram("particles.vert", "particles.frag");
-
 
     // Create and set up Vertex Array Object (VAO) for Cube 1
     BufferManager::VAO VAO1;
@@ -177,35 +177,46 @@ int main() {
     // Main rendering loop
     while (!glfwWindowShouldClose(window)) {
         // Clear the color and depth buffers
+        CheckOpenGLError("before clear buffers");
         glClearColor(0.0f, 0.0f, 0.2f, 1.0f);  // Black-blue color in RGBA
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CheckOpenGLError("after clear buffers");
 
         // Enable wireframe mode
+        CheckOpenGLError("before enable wireframe mode");
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        CheckOpenGLError("after enable wireframe mode");
 
         // Activate the shader programs
+        CheckOpenGLError("before activate shader program");
         shaderProgram.Activate();
         camera.Inputs(window);
         camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+        CheckOpenGLError("after activate shader program");
+
         // Draw the main cube 
         glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); // Adjust scale as needed
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
+        CheckOpenGLError("just before binding");
         VAO1.Bind();
         EBO1.Bind();
-        CheckOpenGLError("Before drawing main cube");
+        CheckOpenGLError("before draw main cube and binding");
         glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
-        CheckOpenGLError("After drawing main cube");
-        EBO1.Unbind();
-        VAO1.Unbind();
-
+        CheckOpenGLError("after draw main cube and before unbinding");
+        //EBO1.Unbind();
+        //VAO1.Unbind();
+        CheckOpenGLError("after draw main cube and unbinding");
 
         // Activate the particle shader program
+        CheckOpenGLError("before particle shader program");
         newshaderProgram.Activate();
         camera.Matrix(45.0f, 0.1f, 100.0f, newshaderProgram, "camMatrixParticles");
+        CheckOpenGLError("after activate particle shader program");
         // Update and draw particles
         for (auto& particle : currentParticles) {
             particle.update(0.01f); // Adjust delta time as needed
             particle.handleWallCollisions();
+
 
             for (auto& other : currentParticles) {
                 if (&particle != &other) {
@@ -223,14 +234,17 @@ int main() {
             particlesVAO1.ParticlesBind();
             particlesEBO1.ParticlesBind();
             glDrawElements(GL_TRIANGLES, sizeof(indicesParticles) / sizeof(int), GL_UNSIGNED_INT, 0);
-            particlesEBO1.ParticlesUnbind();
-            particlesVAO1.ParticlesUnbind();
+            //particlesEBO1.ParticlesUnbind();
+            //particlesVAO1.ParticlesUnbind();
+            CheckOpenGLError("after draw particles and then unbding ");
         }
-
+        CheckOpenGLError("before swapping buffer");
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
+        CheckOpenGLError("after swapping buffer");
+
     }
     // Clean up resources
     VAO1.Delete();
