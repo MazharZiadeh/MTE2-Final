@@ -76,7 +76,7 @@ std::vector<Particles> currentParticles;
 void initializeParticles() {
     // Seed for random number generation
     std::srand(static_cast<unsigned>(std::time(nullptr)));
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 100; ++i) {
         glm::vec3 position(
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f,
@@ -89,7 +89,7 @@ void initializeParticles() {
             static_cast<float>(std::rand()) / RAND_MAX * 2.0f - 1.0f
         );
 
-        float radius = 0.05f;
+        float radius = 0.01f;
 
         currentParticles.emplace_back(position, velocity, radius);
     }
@@ -189,7 +189,7 @@ int main() {
         camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
 
         // Draw the main cube 
-        glm::mat4 mainCubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); // Adjust scale as needed
+        glm::mat4 mainCubeModel = glm::scale(glm::mat4(10.0f), glm::vec3(2.0f)); // Adjust scale as needed
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
         VAO1.Bind();
         EBO1.Bind();
@@ -202,7 +202,7 @@ int main() {
         camera.Matrix(45.0f, 0.1f, 100.0f, newshaderProgram, "camMatrixParticles");
         // Update and draw particles
         for (auto& particle : currentParticles) {
-            particle.update(0.01f); // Adjust delta time as needed
+            particle.update(0.05f); // Adjust delta time as needed
             particle.handleWallCollisions();
 
 

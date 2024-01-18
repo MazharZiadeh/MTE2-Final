@@ -32,7 +32,7 @@ void Particles::handleParticlesCollisions(Particles& other) {
             glm::vec3 collisionImpulse = (2.0f * impactSpeed / (1 + restitution)) * normal;
 
             // Separate the particles slightly after collision to avoid sticking
-            float separationDistance = 0.03f; // Adjust as needed
+            float separationDistance = 0.05f; // Adjust as needed
             glm::vec3 separation = separationDistance * normal;
 
             velocity += collisionImpulse;
