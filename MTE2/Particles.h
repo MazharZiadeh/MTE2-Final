@@ -1,3 +1,5 @@
+// Particles.h
+
 #ifndef PARTICLES_H
 #define PARTICLES_H
 
@@ -5,7 +7,6 @@
 
 class Particles {
 public:
-    Particles();
     Particles(glm::vec3 pos, glm::vec3 vel, float rad);
 
     void update(float deltaTime);
@@ -25,6 +26,8 @@ private:
     glm::vec3 position;
     glm::vec3 velocity;
     float radius;
+
+    float mass; // Added mass property for better collision response
 };
 
-#endif // PARTICLE_H
+#endif // PARTICLES_H
