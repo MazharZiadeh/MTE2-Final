@@ -136,26 +136,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BufferManager.cpp" />
+    <ClCompile Include="BufferManagerSphere.cpp" />
     <ClCompile Include="BufferManagerParticles.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyShader.cpp" />
-    <ClCompile Include="Particles.cpp" />
+    <ClCompile Include="particles.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BufferManager.h" />
+    <ClInclude Include="BufferManagerSphere.h" />
     <ClInclude Include="BufferManagerParticles.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="MyShader.h" />
-    <ClInclude Include="Particles.h" />
+    <ClInclude Include="particles.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="background.frag" />
     <None Include="background.vert" />
-    <None Include="cube.frag" />
-    <None Include="cube.vert" />
+    <None Include="container.frag" />
+    <None Include="container.vert" />
     <None Include="Particles.frag" />
     <None Include="Particles.vert" />
   </ItemGroup>

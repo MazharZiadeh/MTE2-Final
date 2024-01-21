@@ -2,15 +2,22 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb/stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "MyShader.h"
-#include "BufferManager.h"
+#include "BufferManagerSphere.h"
 #include "BufferManagerParticles.h"
 #include "Camera.h"
 #include "Particles.h"
+
+// Function to check OpenGL errors
+void CheckOpenGLError(const char* operation) {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cerr << "OpenGL error in " << operation << ": " << error << std::endl;
+    }
+}
 
 const unsigned int width = 1920;
 const unsigned int height = 1080;
@@ -18,8 +25,13 @@ const unsigned int height = 1080;
 const int numSphereSegments = 20;
 const int numSphereRings = 10;
 
+const int numParticleSegments = 20;
+const int numParticleRings = 10;
+
 std::vector<GLfloat> sphereVertices;
 std::vector<GLuint> sphereIndices;
+
+
 
 void generateSphere() {
     float phi, theta;
@@ -62,6 +74,55 @@ void generateSphere() {
             sphereIndices.push_back(nextRow * (numSphereSegments + 1) + segment);
             sphereIndices.push_back(nextRow * (numSphereSegments + 1) + nextColumn);
             sphereIndices.push_back(ring * (numSphereSegments + 1) + nextColumn);
+        }
+    }
+}
+
+
+std::vector<GLfloat> ParticleVertices;
+std::vector<GLuint> ParticleIndices;
+
+void generateParticle() {
+    float phi, theta;
+
+    for (int ring = 0; ring <= numParticleRings; ++ring) {
+        for (int segment = 0; segment <= numParticleSegments; ++segment) {
+            theta = ring * glm::pi<float>() / numParticleRings;
+            phi = segment * 2.0f * glm::pi<float>() / numParticleSegments;
+
+            float x = std::cos(phi) * std::sin(theta);
+            float y = std::cos(theta);
+            float z = std::sin(phi) * std::sin(theta);
+
+            // Positions
+            ParticleVertices.push_back(x);
+            ParticleVertices.push_back(y);
+            ParticleVertices.push_back(z);
+
+            // Normals (normalized positions)
+            glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
+            ParticleVertices.push_back(normal.x);
+            ParticleVertices.push_back(normal.y);
+            ParticleVertices.push_back(normal.z);
+
+            // Texture coordinates
+            ParticleVertices.push_back(static_cast<float>(segment) / numParticleSegments);
+            ParticleVertices.push_back(static_cast<float>(ring) / numParticleRings);
+        }
+    }
+
+    for (int ring = 0; ring < numParticleRings; ++ring) {
+        for (int segment = 0; segment < numParticleSegments; ++segment) {
+            int nextRow = ring + 1;
+            int nextColumn = segment + 1;
+
+            ParticleIndices.push_back(ring * (numParticleSegments + 1) + segment);
+            ParticleIndices.push_back(nextRow * (numParticleSegments + 1) + segment);
+            ParticleIndices.push_back(ring * (numParticleSegments + 1) + nextColumn);
+
+            ParticleIndices.push_back(nextRow * (numParticleSegments + 1) + segment);
+            ParticleIndices.push_back(nextRow * (numParticleSegments + 1) + nextColumn);
+            ParticleIndices.push_back(ring * (numParticleSegments + 1) + nextColumn);
         }
     }
 }
@@ -110,13 +171,7 @@ void initializeParticles() {
         currentParticles.emplace_back(position, velocity, radius);
     }
 }
-// Function to check OpenGL errors
-void CheckOpenGLError(const char* operation) {
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
-        std::cerr << "OpenGL error after " << operation << ": " << error << std::endl;
-    }
-}
+
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -155,11 +210,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main() {
 
-    // Call this function once to generate sphere data
-    generateSphere();
 
+    // Move the pointer initialization here
     GLfloat* sphereVerticesArray = sphereVertices.data();
     GLuint* sphereIndicesArray = sphereIndices.data();
+    // Move the pointer initialization here
+    GLfloat* ParticleVerticesArray = ParticleVertices.data();
+    GLuint* ParticleIndicesArray = ParticleIndices.data();
+
+
+    //CheckOpenGLError("after  the global int main");
+
+    // Call this function once to generate sphere data
+    generateSphere();
+    generateParticle();
+
+
 
     // Initialize GLFW
     glfwInit();
@@ -184,47 +250,69 @@ int main() {
     // Set the viewport dimensions
     glViewport(0, 0, width, height);
 
-    // Create shader program and set up OpenGL settings for cube 
-    Shader shaderProgram("cube.vert", "cube.frag");
+    // Create shader program and set up OpenGL settings for container 
+    Shader SphereShader("container.vert", "container.frag");
+    CheckOpenGLError("after shader program and set up OpenGL settings for sphere container");
+
     // Create shader program and set up OpenGL settings for particles  
-    Shader newshaderProgram("particles.vert", "particles.frag");
+    Shader ParticleShader("particles.vert", "particles.frag");
+    CheckOpenGLError("after shader program and set up OpenGL settings for particles");
 
+    // Create shader program and set up OpenGL settings for background  
     Shader backgroundShader("background.vert", "background.frag");
+    CheckOpenGLError("after shader program and set up OpenGL settings for background");
 
-    // Create and set up Vertex Array Object (VAO) for Cube 1
-    BufferManager::VAO VAO1;
-    VAO1.Bind();
+
+    // Create and set up Vertex Array Object (VAO) for container sphere
+    BufferManagerSphere::SphereVAO sphereVAO;
+    sphereVAO.SphereBind();
+    CheckOpenGLError("after creating and set up Vertex Array Object (VAO) for sphere");
+
 
     // Create and set up Vertex Array Object (VAO) for particles
-    BufferManagerParticles::ParticlesVAO particlesVAO1;
-    particlesVAO1.ParticlesBind();
+    BufferManagerParticles::ParticlesVAO particlesVAO;
+    particlesVAO.ParticlesBind();
+    CheckOpenGLError("after creating and set up Vertex Array Object (VAO) for particles");
 
-    // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for Cube 1
-    BufferManager::VBO VBO1(&sphereVertices[0], sphereVertices.size() * sizeof(GLfloat));
-    BufferManager::EBO EBO1(&sphereIndices[0], sphereIndices.size() * sizeof(GLuint));
+
+    // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for container sphere
+    BufferManagerSphere::SphereVBO sphereVBO(&sphereVertices[0], sphereVertices.size() * sizeof(GLfloat));
+    BufferManagerSphere::SphereEBO sphereEBO(&sphereIndices[0], sphereIndices.size() * sizeof(GLuint));
+    CheckOpenGLError("after creating Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for sphere ");
+
 
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for particles
-    BufferManagerParticles::ParticlesVBO particlesVBO1(&sphereVertices[0], sphereVertices.size() * sizeof(GLfloat));
-    BufferManagerParticles::ParticlesEBO particlesEBO1(&sphereIndices[0], sphereIndices.size() * sizeof(GLuint));
+    BufferManagerParticles::ParticlesVBO particlesVBO(&ParticleVertices[0], ParticleVertices.size() * sizeof(GLfloat));
+    BufferManagerParticles::ParticlesEBO particlesEBO(&ParticleIndices[0], ParticleIndices.size() * sizeof(GLuint));
+
+    CheckOpenGLError("after creating Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for particles ");
 
 
 
+    // Link attributes in VAO to the VBO for container sphere 
+    sphereVAO.LinkAttrib(sphereVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    sphereVAO.LinkAttrib(sphereVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    sphereVAO.LinkAttrib(sphereVBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    sphereVAO.SphereUnbind();
+    sphereVBO.SphereUnbind();
+    sphereEBO.SphereUnbind();
+    CheckOpenGLError("after setting attributes sphere");
 
-    // Link attributes in VAO to the VBO for Cube 1
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    VAO1.Unbind();
-    VBO1.Unbind();
-    EBO1.Unbind();
 
     // Link attributes in VAO to the VBO for particles
-    particlesVAO1.LinkAttrib(particlesVBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    particlesVAO1.LinkAttrib(particlesVBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    particlesVAO1.LinkAttrib(particlesVBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    particlesVAO1.ParticlesUnbind();
-    particlesVBO1.ParticlesUnbind();
-    particlesEBO1.ParticlesUnbind();
+    particlesVAO.LinkAttrib(particlesVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    CheckOpenGLError("after setting attributes particles before mnyok define ParticlesUnbind ");
+
+    particlesVAO.LinkAttrib(particlesVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    CheckOpenGLError("after setting attributes particles before mm7on define ParticlesUnbind ");
+
+    particlesVAO.LinkAttrib(particlesVBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    CheckOpenGLError("after setting attributes particles before define ParticlesUnbind ");
+
+    particlesVAO.ParticlesUnbind();
+    particlesVBO.ParticlesUnbind();
+    particlesEBO.ParticlesUnbind();
+    CheckOpenGLError("after setting attributes particles and define ParticlesUnbind ");
 
 
     // Enable depth testing
@@ -285,26 +373,31 @@ int main() {
 
 
 
+    CheckOpenGLError("before main loop");
     // Main rendering loop
     while (!glfwWindowShouldClose(window)) {
+        CheckOpenGLError("before  ");
+
         // Clear the color and depth buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        CheckOpenGLError("glClear");
 
         // Draw the background first
         backgroundShader.Activate();
         glDisable(GL_DEPTH_TEST);
 
-
         // Set the gradient colors in the shader
-        // (Assuming you have uniform variables "colorLeft", "colorMiddle", and "colorRight" in your background shader)
-        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorLeft"), 1, glm::value_ptr(glm::vec3(0.23f, 0.81f, 0.83f)));  // #3BCFD4
-        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorMiddle"), 1, glm::value_ptr(glm::vec3(0.47f, 0.46f, 1.0f)));  // #7975FF
-        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorRight"), 1, glm::value_ptr(glm::vec3(0.79f, 0.61f, 1.0f)));  // #C99DFF
+        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorLeft"), 1, glm::value_ptr(glm::vec3(0.23f, 0.81f, 0.83f)));
+        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorMiddle"), 1, glm::value_ptr(glm::vec3(0.47f, 0.46f, 1.0f)));
+        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorRight"), 1, glm::value_ptr(glm::vec3(0.79f, 0.61f, 1.0f)));
+        CheckOpenGLError("Setting gradient colors");
 
         // Render the background quad
         glBindVertexArray(quadVAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+        CheckOpenGLError("Rendering background quad");
 
         // Enable wireframe mode if necessary
         if (wireframeMode) {
@@ -313,22 +406,24 @@ int main() {
         else {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
+        CheckOpenGLError("Setting polygon mode");
 
         // Activate the shader programs
-        shaderProgram.Activate();
+        SphereShader.Activate();
         camera.Inputs(window);
-        camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+        camera.Matrix(45.0f, 0.1f, 100.0f, SphereShader, "camMatrixParticles");
+        CheckOpenGLError("Activating SphereShader");
 
-        // Draw the main cube 
-        glm::mat4 mainCubeModel = glm::scale(glm::mat4(10.0f), glm::vec3(2.0f)); // Adjust scale as needed
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(mainCubeModel));
-        CheckOpenGLError("Before Container Rendering");
-        VAO1.Bind();
-        EBO1.Bind();
+        // Draw the main container sphere
+        glm::mat4 modelSphere = glm::scale(glm::mat4(10.0f), glm::vec3(2.0f)); // Adjust scale as needed
+        glUniformMatrix4fv(glGetUniformLocation(SphereShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(modelSphere));
+        CheckOpenGLError("Setting model matrix for container sphere");
+        sphereVAO.SphereBind();
+        sphereEBO.SphereBind();
         glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-        EBO1.Unbind();
-        VAO1.Unbind();
-        CheckOpenGLError("after Container Rendering");
+        sphereEBO.SphereUnbind();
+        sphereVAO.SphereUnbind();
+        CheckOpenGLError("Rendering container sphere");
 
         // Check if particles need to be refreshed
         if (refreshParticles) {
@@ -341,8 +436,9 @@ int main() {
         }
 
         // Activate the particle shader program
-        newshaderProgram.Activate();
-        camera.Matrix(45.0f, 0.1f, 100.0f, newshaderProgram, "camMatrixParticles");
+        ParticleShader.Activate();
+        camera.Matrix(45.0f, 0.1f, 100.0f, ParticleShader, "camMatrixParticles");
+        CheckOpenGLError("Activating ParticleShader");
 
         for (auto& particle : currentParticles) {
             if (!pauseParticles) {
@@ -357,37 +453,41 @@ int main() {
             }
 
             // Draw particles
-            glm::mat4 particlesModel = glm::translate(glm::mat4(1.0), particle.getPosition())
+            glm::mat4 modelParticles = glm::translate(glm::mat4(1.0), particle.getPosition())
                 * glm::scale(glm::mat4(1.0f), glm::vec3(particle.getRadius())); // Adjust scale as needed
 
             // Set the model matrix in the shader program
-            glUniformMatrix4fv(glGetUniformLocation(newshaderProgram.ID, "modelParticles"), 1, GL_FALSE, glm::value_ptr(particlesModel));
+            glUniformMatrix4fv(glGetUniformLocation(ParticleShader.ID, "modelParticles"), 1, GL_FALSE, glm::value_ptr(modelParticles));
+            CheckOpenGLError("Setting model matrix for particles");
 
-            // Bind VAO and draw a small cube for each particle
-            particlesVAO1.ParticlesBind();
-            particlesEBO1.ParticlesBind();
-            glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-            particlesEBO1.ParticlesUnbind();
-            particlesVAO1.ParticlesUnbind();
+            // Bind VAO and draw small Particle for each particle
+            particlesVAO.ParticlesBind();
+            particlesEBO.ParticlesBind();
+            glDrawElements(GL_TRIANGLES, ParticleIndices.size(), GL_UNSIGNED_INT, 0);
+            particlesEBO.ParticlesUnbind();
+            particlesVAO.ParticlesUnbind();
+            CheckOpenGLError("Rendering particles");
         }
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
         glfwPollEvents();
+        CheckOpenGLError("Swap buffers and poll events");
     }
 
-
     // Clean up resources
-    VAO1.Delete();
-    VBO1.Delete();
-    EBO1.Delete();
-    particlesVAO1.ParticlesDelete();
-    particlesVBO1.ParticlesDelete();
-    particlesEBO1.ParticlesDelete();
-    shaderProgram.Delete();
-    newshaderProgram.Delete();
+    sphereVAO.SphereDelete();
+    sphereVBO.SphereDelete();
+    sphereEBO.SphereDelete();
+    particlesVAO.ParticlesDelete();
+    particlesVBO.ParticlesDelete();
+    particlesEBO.ParticlesDelete();
+    SphereShader.Delete();
+    ParticleShader.Delete();
     backgroundShader.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
+    CheckOpenGLError("Clean up resources");
     return 0;
+
 }

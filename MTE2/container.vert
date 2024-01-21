@@ -5,11 +5,11 @@ layout (location = 1) in vec2 aTexCoords;
 
 out vec3 FragColor;
 
-uniform mat4 modelParticles;
-uniform mat4 camMatrixParticles;
+uniform mat4 modelSphere;
+uniform mat4 camMatrixSphere;
 
 void main()
 {
-    gl_Position = camMatrixParticles * modelParticles * vec4(aPos, 1.0);
+    gl_Position = camMatrixSphere * modelSphere * vec4(aPos, 1.0);
     FragColor = aColor;
 }

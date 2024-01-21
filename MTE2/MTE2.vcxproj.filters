@@ -30,10 +30,10 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BufferManager.cpp">
+    <ClCompile Include="BufferManagerSphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Particles.cpp">
+    <ClCompile Include="particles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BufferManagerParticles.cpp">
@@ -47,10 +47,10 @@
     <ClInclude Include="MyShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BufferManager.h">
+    <ClInclude Include="BufferManagerSphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Particles.h">
+    <ClInclude Include="particles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BufferManagerParticles.h">
@@ -58,10 +58,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cube.frag">
+    <None Include="container.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="cube.vert">
+    <None Include="container.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="Particles.frag">

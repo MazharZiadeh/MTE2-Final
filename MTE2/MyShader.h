@@ -1,40 +1,33 @@
-// Include guards to prevent multiple inclusion of the header
-#ifndef SHADER_CLASS_H
-#define SHADER_CLASS_H
+#ifndef MYSHADER_H
+#define MYSHADER_H
 
-// Include necessary OpenGL headers
-#include <glad/glad.h>
-
-// Include necessary standard C++ headers
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <cerrno>
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-// Function to read the contents of a file and return it as a string
-std::string get_file_contents(const char* filename);
-
-// Shader class declaration
-class Shader
-{
+class Shader {
 public:
-    // Shader program ID
-    GLuint ID;
+    unsigned int ID;
 
-    // Constructor that takes the file paths for the vertex and fragment shaders
-    Shader(const char* vertexFile, const char* fragmentFile);
+    Shader(const char* vertexPath, const char* fragmentPath);
 
-    // Function to activate the shader program
     void Activate();
 
-    // Function to delete the shader program
     void Delete();
 
+    void SetBool(const std::string& name, bool value) const;
+    void SetInt(const std::string& name, int value) const;
+    void SetFloat(const std::string& name, float value) const;
+    void SetVec3(const std::string& name, const glm::vec3& value) const;
+    void SetMat4(const std::string& name, const glm::mat4& value) const;
+
 private:
-    // Private function to handle compilation errors
-    void compileErrors(unsigned int shader, const char* type);
+    void CompileShader(unsigned int shader, const char* shaderCode);
+    void CheckCompileErrors(unsigned int shader, std::string type);
 };
 
-// End of include guards
-#endif
+#endif // MYSHADER_H
