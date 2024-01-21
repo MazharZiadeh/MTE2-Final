@@ -30,7 +30,7 @@ namespace BufferManagerParticles {
 	public:
 		GLuint ID;
 
-		ParticlesVBO(GLfloat* verticesParticles, GLsizeiptr size);
+		ParticlesVBO(GLfloat* sphereVerticesParticles, GLsizeiptr size);
 
 		void ParticlesBind();
 		void ParticlesUnbind();

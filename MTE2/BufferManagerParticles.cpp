@@ -45,10 +45,10 @@ namespace BufferManagerParticles {
 		glDeleteVertexArrays(1, &ID);
 	}
 
-	ParticlesVBO::ParticlesVBO(GLfloat* verticesParticles, GLsizeiptr size) {
+	ParticlesVBO::ParticlesVBO(GLfloat* sphereVerticesParticles, GLsizeiptr size) {
 		glGenBuffers(1, &ID);
 		glBindBuffer(GL_ARRAY_BUFFER, ID);
-		glBufferData(GL_ARRAY_BUFFER, size, verticesParticles, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, sphereVerticesParticles, GL_STATIC_DRAW);
 	}
 
 	void ParticlesVBO::ParticlesBind() {

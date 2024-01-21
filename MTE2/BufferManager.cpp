@@ -45,10 +45,10 @@ namespace BufferManager {
 		glDeleteVertexArrays(1, &ID);
 	}
 
-	VBO::VBO(GLfloat* vertices, GLsizeiptr size) {
+	VBO::VBO(GLfloat* sphereVertices, GLsizeiptr size) {
 		glGenBuffers(1, &ID);
 		glBindBuffer(GL_ARRAY_BUFFER, ID);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, sphereVertices, GL_STATIC_DRAW);
 	}
 
 	void VBO::Bind() {

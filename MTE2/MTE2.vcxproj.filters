@@ -70,5 +70,11 @@
     <None Include="Particles.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="background.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="background.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -30,7 +30,7 @@ namespace BufferManager {
 	public:
 		GLuint ID;
 
-		VBO(GLfloat* vertices, GLsizeiptr size);
+		VBO(GLfloat* sphereVertices, GLsizeiptr size);
 
 		void Bind();
 		void Unbind();

@@ -15,33 +15,64 @@
 const unsigned int width = 1920;
 const unsigned int height = 1080;
 
-GLfloat vertices[] = {
-    // Cube 1 (contrainer)
-    // Positions          // Normals           // Texture Coords
-    -1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 0
-    -1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // 1
-     1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, // 2
-     1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // 3
-    -1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // 4
-    -1.0f,  1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f, // 5
-     1.0f,  1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f, // 6
-     1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f, // 7
-};
+const int numSphereSegments = 20;
+const int numSphereRings = 10;
 
-GLuint indicesCube[] = {
-    0, 1, 2, // front face (Cube 1)
-    0, 2, 3,
-    4, 5, 1, // left face (Cube 1)
-    4, 1, 0,
-    3, 2, 6, // right face (Cube 1)
-    3, 6, 7,
-    1, 5, 6, // top face (Cube 1)
-    1, 6, 2,
-    4, 0, 3, // bottom face (Cube 1)
-    4, 3, 7,
-    5, 4, 7, // back face (Cube 1)
-    5, 7, 6
-};
+std::vector<GLfloat> sphereVertices;
+std::vector<GLuint> sphereIndices;
+
+void generateSphere() {
+    float phi, theta;
+
+    for (int ring = 0; ring <= numSphereRings; ++ring) {
+        for (int segment = 0; segment <= numSphereSegments; ++segment) {
+            theta = ring * glm::pi<float>() / numSphereRings;
+            phi = segment * 2.0f * glm::pi<float>() / numSphereSegments;
+
+            float x = std::cos(phi) * std::sin(theta);
+            float y = std::cos(theta);
+            float z = std::sin(phi) * std::sin(theta);
+
+            // Positions
+            sphereVertices.push_back(x);
+            sphereVertices.push_back(y);
+            sphereVertices.push_back(z);
+
+            // Normals (normalized positions)
+            glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
+            sphereVertices.push_back(normal.x);
+            sphereVertices.push_back(normal.y);
+            sphereVertices.push_back(normal.z);
+
+            // Texture coordinates
+            sphereVertices.push_back(static_cast<float>(segment) / numSphereSegments);
+            sphereVertices.push_back(static_cast<float>(ring) / numSphereRings);
+        }
+    }
+
+    for (int ring = 0; ring < numSphereRings; ++ring) {
+        for (int segment = 0; segment < numSphereSegments; ++segment) {
+            int nextRow = ring + 1;
+            int nextColumn = segment + 1;
+
+            sphereIndices.push_back(ring * (numSphereSegments + 1) + segment);
+            sphereIndices.push_back(nextRow * (numSphereSegments + 1) + segment);
+            sphereIndices.push_back(ring * (numSphereSegments + 1) + nextColumn);
+
+            sphereIndices.push_back(nextRow * (numSphereSegments + 1) + segment);
+            sphereIndices.push_back(nextRow * (numSphereSegments + 1) + nextColumn);
+            sphereIndices.push_back(ring * (numSphereSegments + 1) + nextColumn);
+        }
+    }
+}
+
+
+
+// Call this function once to generate sphere data
+
+GLfloat* sphereVerticesArray = sphereVertices.data();
+GLuint* sphereIndicesArray = sphereIndices.data();
+
 std::vector<Particles> currentParticles;
 
 
@@ -124,6 +155,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main() {
 
+    // Call this function once to generate sphere data
+    generateSphere();
+
+    GLfloat* sphereVerticesArray = sphereVertices.data();
+    GLuint* sphereIndicesArray = sphereIndices.data();
+
     // Initialize GLFW
     glfwInit();
 
@@ -152,6 +189,8 @@ int main() {
     // Create shader program and set up OpenGL settings for particles  
     Shader newshaderProgram("particles.vert", "particles.frag");
 
+    Shader backgroundShader("background.vert", "background.frag");
+
     // Create and set up Vertex Array Object (VAO) for Cube 1
     BufferManager::VAO VAO1;
     VAO1.Bind();
@@ -161,12 +200,15 @@ int main() {
     particlesVAO1.ParticlesBind();
 
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for Cube 1
-    BufferManager::VBO VBO1(vertices, sizeof(vertices));
-    BufferManager::EBO EBO1(indicesCube, sizeof(indicesCube));
+    BufferManager::VBO VBO1(&sphereVertices[0], sphereVertices.size() * sizeof(GLfloat));
+    BufferManager::EBO EBO1(&sphereIndices[0], sphereIndices.size() * sizeof(GLuint));
 
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for particles
-    BufferManagerParticles::ParticlesVBO particlesVBO1(vertices, sizeof(vertices));
-    BufferManagerParticles::ParticlesEBO particlesEBO1(indicesCube, sizeof(indicesCube));
+    BufferManagerParticles::ParticlesVBO particlesVBO1(&sphereVertices[0], sphereVertices.size() * sizeof(GLfloat));
+    BufferManagerParticles::ParticlesEBO particlesEBO1(&sphereIndices[0], sphereIndices.size() * sizeof(GLuint));
+
+
+
 
     // Link attributes in VAO to the VBO for Cube 1
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
@@ -183,6 +225,8 @@ int main() {
     particlesVAO1.ParticlesUnbind();
     particlesVBO1.ParticlesUnbind();
     particlesEBO1.ParticlesUnbind();
+
+
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
@@ -196,12 +240,72 @@ int main() {
 
     // Set the key callback function
     glfwSetKeyCallback(window, key_callback);
+
+
+
+
+
+
+
+
+
+    GLuint quadVAO, quadVBO, quadEBO;
+    float quadVertices[] = {
+        -100.0f, -100.0f, 0.0f,   // Bottom-left
+         100.0f, -100.0f, 0.0f,   // Bottom-right
+         100.0f,  100.0f, 0.0f,   // Top-right
+        -100.0f,  100.0f, 0.0f    // Top-left
+    };
+
+    GLuint quadIndices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    // Initialize quad VAO, VBO, and EBO
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glGenBuffers(1, &quadEBO);
+
+    glBindVertexArray(quadVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(0);
+
+
+
+
+
     // Main rendering loop
     while (!glfwWindowShouldClose(window)) {
         // Clear the color and depth buffers
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0);  // Black-blue color in RGBA
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Draw the background first
+        backgroundShader.Activate();
+        glDisable(GL_DEPTH_TEST);
+
+
+        // Set the gradient colors in the shader
+        // (Assuming you have uniform variables "colorLeft", "colorMiddle", and "colorRight" in your background shader)
+        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorLeft"), 1, glm::value_ptr(glm::vec3(0.23f, 0.81f, 0.83f)));  // #3BCFD4
+        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorMiddle"), 1, glm::value_ptr(glm::vec3(0.47f, 0.46f, 1.0f)));  // #7975FF
+        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorRight"), 1, glm::value_ptr(glm::vec3(0.79f, 0.61f, 1.0f)));  // #C99DFF
+
+        // Render the background quad
+        glBindVertexArray(quadVAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         // Enable wireframe mode if necessary
         if (wireframeMode) {
@@ -210,6 +314,7 @@ int main() {
         else {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
+
         // Activate the shader programs
         shaderProgram.Activate();
         camera.Inputs(window);
@@ -221,7 +326,7 @@ int main() {
         CheckOpenGLError("Before Container Rendering");
         VAO1.Bind();
         EBO1.Bind();
-        glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
         EBO1.Unbind();
         VAO1.Unbind();
         CheckOpenGLError("after Container Rendering");
@@ -262,7 +367,7 @@ int main() {
             // Bind VAO and draw a small cube for each particle
             particlesVAO1.ParticlesBind();
             particlesEBO1.ParticlesBind();
-            glDrawElements(GL_TRIANGLES, sizeof(indicesCube) / sizeof(int), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
             particlesEBO1.ParticlesUnbind();
             particlesVAO1.ParticlesUnbind();
         }
@@ -282,6 +387,7 @@ int main() {
     particlesEBO1.ParticlesDelete();
     shaderProgram.Delete();
     newshaderProgram.Delete();
+    backgroundShader.Delete();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

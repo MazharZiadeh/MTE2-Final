@@ -1,9 +1,21 @@
 #version 330 core
-in vec3 FragColor;
+out vec4 FragColor;
 
-out vec4 FragColorOut;
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoord;
+
+uniform vec3 viewPos;
+
+// Add uniforms for the gradient colors
+uniform vec3 colorLeft;
+uniform vec3 colorMiddle;
+uniform vec3 colorRight;
 
 void main()
 {
-    FragColorOut = vec4(FragColor, 1.0);
+    // Calculate the background color using a gradient
+    vec3 gradientColor = mix(mix(colorLeft, colorMiddle, TexCoord.x), colorRight, TexCoord.x);
+
+    FragColor = vec4(gradientColor, 1.0);
 }
