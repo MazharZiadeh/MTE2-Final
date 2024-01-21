@@ -266,7 +266,6 @@ int main() {
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
     glGenBuffers(1, &quadEBO);
-
     glBindVertexArray(quadVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
