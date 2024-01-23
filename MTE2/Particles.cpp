@@ -10,7 +10,7 @@ void Particles::update(float deltaTime) {
     position += velocity * deltaTime;
 }
 
-// Handle collisions with walls, ensuring the object stays within the bounding box [-1, 1].
+// Handle collisions with walls, ensuring the object stays within the bounding box [-1, 1]
 void Particles::handleWallCollisions() {
     for (int i = 0; i < 3; ++i) {
         // Check for collision with the left wall

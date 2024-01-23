@@ -23,15 +23,13 @@ const unsigned int width = 1920;
 const unsigned int height = 1080;
 
 const int numSphereSegments = 20;
-const int numSphereRings = 10;
+const int numSphereRings = 20;
 
 const int numParticleSegments = 20;
-const int numParticleRings = 10;
+const int numParticleRings = 20;
 
 std::vector<GLfloat> sphereVertices;
 std::vector<GLuint> sphereIndices;
-
-
 
 void generateSphere() {
     float phi, theta;
@@ -77,7 +75,6 @@ void generateSphere() {
         }
     }
 }
-
 
 std::vector<GLfloat> ParticleVertices;
 std::vector<GLuint> ParticleIndices;
@@ -127,8 +124,6 @@ void generateParticle() {
     }
 }
 
-
-
 // Call this function once to generate sphere data
 
 GLfloat* sphereVerticesArray = sphereVertices.data();
@@ -136,17 +131,13 @@ GLuint* sphereIndicesArray = sphereIndices.data();
 
 std::vector<Particles> currentParticles;
 
-
-//flagzzzz...................................................................
-
-bool pauseParticles = false; // Flag to control particle motion
-
-bool refreshParticles = false; // Flag to control particle refresh
-
-int numParticles = 10; // Initial number of particles
-bool wireframeMode = false;
-
-//,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+//___________________________________________________________________________ //
+                                                                             //
+bool pauseParticles = false; // Flag to control particle motion		        //
+bool refreshParticles = false; // Flag to control particle refresh         //
+int numParticles = 10; // Initial number of particles                     //
+bool wireframeMode = false;                                              //
+//______________________________________________________________________//
 
 
 void initializeParticles() {
@@ -171,8 +162,6 @@ void initializeParticles() {
         currentParticles.emplace_back(position, velocity, radius);
     }
 }
-
-
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
@@ -225,8 +214,6 @@ int main() {
     generateSphere();
     generateParticle();
 
-
-
     // Initialize GLFW
     glfwInit();
 
@@ -262,32 +249,26 @@ int main() {
     Shader backgroundShader("background.vert", "background.frag");
     CheckOpenGLError("after shader program and set up OpenGL settings for background");
 
-
     // Create and set up Vertex Array Object (VAO) for container sphere
     BufferManagerSphere::SphereVAO sphereVAO;
     sphereVAO.SphereBind();
     CheckOpenGLError("after creating and set up Vertex Array Object (VAO) for sphere");
-
 
     // Create and set up Vertex Array Object (VAO) for particles
     BufferManagerParticles::ParticlesVAO particlesVAO;
     particlesVAO.ParticlesBind();
     CheckOpenGLError("after creating and set up Vertex Array Object (VAO) for particles");
 
-
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for container sphere
     BufferManagerSphere::SphereVBO sphereVBO(&sphereVertices[0], sphereVertices.size() * sizeof(GLfloat));
     BufferManagerSphere::SphereEBO sphereEBO(&sphereIndices[0], sphereIndices.size() * sizeof(GLuint));
     CheckOpenGLError("after creating Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for sphere ");
-
 
     // Create and set up Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for particles
     BufferManagerParticles::ParticlesVBO particlesVBO(&ParticleVertices[0], ParticleVertices.size() * sizeof(GLfloat));
     BufferManagerParticles::ParticlesEBO particlesEBO(&ParticleIndices[0], ParticleIndices.size() * sizeof(GLuint));
 
     CheckOpenGLError("after creating Vertex Buffer Object (VBO) and Element Buffer Object (EBO) for particles ");
-
-
 
     // Link attributes in VAO to the VBO for container sphere 
     sphereVAO.LinkAttrib(sphereVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
@@ -296,24 +277,23 @@ int main() {
     sphereVAO.SphereUnbind();
     sphereVBO.SphereUnbind();
     sphereEBO.SphereUnbind();
-    CheckOpenGLError("after setting attributes sphere");
-
 
     // Link attributes in VAO to the VBO for particles
+    CheckOpenGLError("before setting attributes particles before mnyok define ParticlesUnbind ");
     particlesVAO.LinkAttrib(particlesVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+
     CheckOpenGLError("after setting attributes particles before mnyok define ParticlesUnbind ");
-
     particlesVAO.LinkAttrib(particlesVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    CheckOpenGLError("after setting attributes particles before mm7on define ParticlesUnbind ");
 
+    CheckOpenGLError("after setting attributes particles before mm7on define ParticlesUnbind ");
     particlesVAO.LinkAttrib(particlesVBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
     CheckOpenGLError("after setting attributes particles before define ParticlesUnbind ");
 
     particlesVAO.ParticlesUnbind();
     particlesVBO.ParticlesUnbind();
     particlesEBO.ParticlesUnbind();
     CheckOpenGLError("after setting attributes particles and define ParticlesUnbind ");
-
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
@@ -328,14 +308,6 @@ int main() {
 
     // Set the key callback function
     glfwSetKeyCallback(window, key_callback);
-
-
-
-
-
-
-
-
 
     GLuint quadVAO, quadVBO, quadEBO;
     float quadVertices[] = {
@@ -368,10 +340,6 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
-
-
-
-
 
     CheckOpenGLError("before main loop");
     // Main rendering loop

@@ -1,4 +1,6 @@
 #include "MyShader.h"
+#include <glm/gtc/matrix_transform.hpp>  
+
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // Load shaders from file
@@ -111,4 +113,19 @@ void Shader::SetVec3(const std::string& name, const glm::vec3& value) const {
 
 void Shader::SetMat4(const std::string& name, const glm::mat4& value) const {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+
+}
+
+void Shader::SetVec3(const std::string& name, const glm::vec3& value, bool normalize) const {
+    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, normalize ? glm::value_ptr(glm::normalize(value)) : glm::value_ptr(value));
+}
+
+void Shader::SetVec3(const std::string& name, float x, float y, float z, bool normalize) const {
+    if (normalize) {
+        glm::vec3 normalizedVec = glm::normalize(glm::vec3(x, y, z));
+        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(normalizedVec));
+    }
+    else {
+        glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
+    }
 }
