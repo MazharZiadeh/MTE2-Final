@@ -1,10 +1,5 @@
 Project Title: 3D Particle Collision Simulation
 ------------------------------------------------------------------------------------------
-
-Authors: 1. Mazhar Ziadeh, 2. Adnan Jaber, 3. Orhan K?seo?lu
-
-------------------------------------------------------------------------------------------
-
 Introduction:
 
 The simulation is designed to demonstrate the physics of elastic collisions in a 3D environment. Each particle is represented as a sphere, and the container is also a larger sphere. The particles move freely within the container, and when they collide with each other or the container, they bounce back due to the elastic nature of the collision.
