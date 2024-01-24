@@ -9,8 +9,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Shader {
-public:
+class Shader { // Added class for shaders
+public: // Added public access modifier
     unsigned int ID;
 
     Shader(const char* vertexPath, const char* fragmentPath);
@@ -29,7 +29,7 @@ public:
     void SetVec3(const std::string& name, const glm::vec3& value, bool normalize = false) const;
     void SetVec3(const std::string& name, float x, float y, float z, bool normalize = false) const;
 
-private:
+private: // Added private access modifier
     void CompileShader(unsigned int shader, const char* shaderCode);
     void CheckCompileErrors(unsigned int shader, std::string type);
 };

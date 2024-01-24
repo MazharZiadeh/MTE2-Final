@@ -3,9 +3,9 @@
 
 #pragma once
 
-namespace BufferManagerSphere {
+namespace BufferManagerSphere { // Define the namespace for this module
 
-	class SphereEBO {
+	class SphereEBO { // Define the class for the Element Buffer Object (EBO)
 	public:
 		GLuint ID;
 
@@ -16,7 +16,7 @@ namespace BufferManagerSphere {
 		void SphereDelete();
 	};
 
-	class SphereVAO {
+	class SphereVAO { // Define the class for the Vertex Array Object (VAO)
 	public:
 		GLuint ID;
 		SphereVAO();
@@ -26,7 +26,7 @@ namespace BufferManagerSphere {
 		void SphereDelete();
 	};
 
-	class SphereVBO {
+	class SphereVBO { // Define the class for the Vertex Buffer Object (VBO)
 	public:
 		GLuint ID;
 

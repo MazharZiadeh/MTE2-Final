@@ -1,9 +1,17 @@
 #include "Particles.h"
 #include <glm/gtc/random.hpp>
 
+// Constructor for Particles class
+// Parameters:
+// - pos: The initial position of the particle
+// - vel: The initial velocity of the particle
+// - rad: The radius of the particle
 Particles::Particles(glm::vec3 pos, glm::vec3 vel, float rad)
     : position(pos), velocity(vel), radius(rad), rotationAngles(glm::vec3(0.0f)) {}
 
+// Update the particle's position based on its velocity and the elapsed time
+// Parameters:
+// - deltaTime: The elapsed time since the last update
 void Particles::update(float deltaTime) {
     // Update position
     position += velocity * deltaTime;
@@ -12,6 +20,7 @@ void Particles::update(float deltaTime) {
     rotationAngles += glm::vec3(1.0f, 1.0f, 1.0f) * deltaTime;
 }
 
+// Handle collisions with walls
 void Particles::handleWallCollisions() {
     for (int i = 0; i < 3; ++i) {
         if (position[i] - radius < -1.0f) {
@@ -29,6 +38,9 @@ void Particles::handleWallCollisions() {
     }
 }
 
+// Handle collisions between particles
+// Parameters:
+// - other: The other particle involved in the collision
 void Particles::handleParticlesCollisions(Particles& other) {
     glm::vec3 delta = other.getPosition() - position;
     float distance = glm::length(delta);
@@ -42,17 +54,22 @@ void Particles::handleParticlesCollisions(Particles& other) {
         if (relativeSpeedAlongNormal > 0) {
             float elasticity = 1.0f;
 
+            // Calculate impulse magnitude based on relative speed along the collision normal
             float impulseMagnitude = (1.0f + elasticity) * relativeSpeedAlongNormal;
             impulseMagnitude /= (1.0f / mass + 1.0f / other.mass);
 
+            // Calculate impulse vector
             glm::vec3 impulse = impulseMagnitude * normal;
 
+            // Update velocities based on impulse and masses
             velocity += impulse / mass;
             other.velocity -= impulse / other.mass;
 
+            // Calculate separation distance and vector
             float separationDistance = (minDistance - distance) / 2.0f;
             glm::vec3 separation = separationDistance * normal;
 
+            // Update positions based on separation
             position -= separation;
             other.position += separation;
 
@@ -62,42 +79,42 @@ void Particles::handleParticlesCollisions(Particles& other) {
     }
 }
 
-// Add getters and setters for rotationAngles if needed
+// Getter for rotationAngles
 glm::vec3 Particles::getRotationAngles() const {
     return rotationAngles;
 }
 
+// Setter for rotationAngles
 void Particles::setRotationAngles(const glm::vec3& angles) {
     rotationAngles = angles;
 }
 
-
-// Getter for object position.
+// Getter for position
 glm::vec3 Particles::getPosition() const {
     return position;
 }
 
-// Setter for object position.
+// Setter for position
 void Particles::setPosition(const glm::vec3& pos) {
     position = pos;
 }
 
-// Getter for object velocity.
+// Getter for velocity
 glm::vec3 Particles::getVelocity() const {
     return velocity;
 }
 
-// Setter for object velocity.
+// Setter for velocity
 void Particles::setVelocity(const glm::vec3& vel) {
     velocity = vel;
 }
 
-// Getter for object radius.
+// Getter for radius
 float Particles::getRadius() const {
     return radius;
 }
 
-// Setter for object radius.
+// Setter for radius
 void Particles::setRadius(float rad) {
     radius = rad;
 }

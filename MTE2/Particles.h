@@ -3,8 +3,8 @@
 
 #include <glm/glm.hpp>
 
-class Particles {
-public:
+class Particles { // Added class for particles
+public: // Added public access modifier
     Particles(glm::vec3 pos, glm::vec3 vel, float rad);
 
     void update(float deltaTime);
@@ -23,7 +23,7 @@ public:
     glm::vec3 getRotationAngles() const; // Getter for rotation angles
     void setRotationAngles(const glm::vec3& angles); // Setter for rotation angles
 
-private:
+private: // Added private access modifier
     glm::vec3 position;
     glm::vec3 velocity;
     glm::vec3 rotationAngles; // Added rotation angles property

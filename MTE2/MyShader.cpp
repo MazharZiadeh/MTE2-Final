@@ -2,6 +2,16 @@
 #include <glm/gtc/matrix_transform.hpp>  
 
 
+/**
+ * @brief Constructs a Shader object with the given vertex and fragment shader file paths.
+ *
+ * This constructor loads the shader code from the specified files, compiles the shaders,
+ * links them into a shader program, and performs error checking.
+ *
+ * @param vertexPath The file path of the vertex shader.
+ * @param fragmentPath The file path of the fragment shader.
+ */
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     // Load shaders from file
     std::string vertexCode;
@@ -74,8 +84,8 @@ void Shader::CompileShader(unsigned int shader, const char* shaderCode) {
     glCompileShader(shader);
     CheckCompileErrors(shader, "SHADER");
 }
-
-void Shader::CheckCompileErrors(unsigned int shader, std::string type) {
+ //
+void Shader::CheckCompileErrors(unsigned int shader, std::string type) { // NOLINT(misc-unused-parameters)
     int success;
     char infoLog[1024];
 
@@ -94,6 +104,9 @@ void Shader::CheckCompileErrors(unsigned int shader, std::string type) {
         }
     }
 }
+
+
+
 
 void Shader::SetBool(const std::string& name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), static_cast<int>(value));

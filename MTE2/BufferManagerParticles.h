@@ -2,10 +2,10 @@
 #include <glad/glad.h>
 
 #pragma once
+ 
+namespace BufferManagerParticles { // Define the namespace for this module
 
-namespace BufferManagerParticles {
-
-	class ParticlesEBO {
+	class ParticlesEBO { // Define the class for the Element Buffer Object (EBO)
 	public:
 		GLuint ID;
 
@@ -16,7 +16,7 @@ namespace BufferManagerParticles {
 		void ParticlesDelete();
 	};
 
-	class ParticlesVAO {
+	class ParticlesVAO { // Define the class for the Vertex Array Object (VAO)
 	public:
 		GLuint ID;
 		ParticlesVAO();
@@ -26,7 +26,7 @@ namespace BufferManagerParticles {
 		void ParticlesDelete();
 	};
 
-	class ParticlesVBO {
+	class ParticlesVBO {	// Define the class for the Vertex Buffer Object (VBO)
 	public:
 		GLuint ID;
 
