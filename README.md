@@ -12,12 +12,19 @@ Usage:
 ------------------------------------------------------------------------------------------
 After compiling the project, run the executable. The simulation will start, and you will see particles moving and colliding within the container sphere.
 camera uses the mouse to rotate around, and WASD keys to move in the scene, 
+
 F: Refresh particles
+
 G: Decrease the number of particles by 1, with a minimum of 1
+
 H : Increase the number of particles by 1
+
 J : Reset the number of particles to 10
+
 O : Toggle wireframe mode
+
 P : Toggle pause
+
 I : Toggle background gradient
 
 Known Issues:
