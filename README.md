@@ -1,45 +1,38 @@
-OpenGL 3D Rendering Project
+Project Title: 3D Particle Collision Simulation
 
-This repository contains a simple C++ program using OpenGL for 3D rendering. The program creates a window, loads shaders, sets up a 3D model (a cube), and renders it with textures and basic camera controls.
-Table of Contents
 
-    Dependencies
-    Getting Started
-    Features
-    Controls
-    Directory Structure
-    License
 
-Dependencies
+Introduction:
 
-    GLFW - GLFW is a multi-platform library for creating windows with OpenGL contexts.
-    GLAD - GLAD is a simple library for loading OpenGL functions.
-    stb_image - stb_image is a single-file public domain library for image loading.
-    glm - GLM is a mathematics library for graphics programming.
-    MyTexture, MyShader, VAO, VBO, EBO, Camera - Custom C++ classes for handling textures, shaders, and OpenGL objects.
+The simulation is designed to demonstrate the physics of elastic collisions in a 3D environment. Each particle is represented as a sphere, and the container is also a larger sphere. The particles move freely within the container, and when they collide with each other or the container, they bounce back due to the elastic nature of the collision.
 
-Getting Started
+Installation:
+To install the project, you need to have a C++ compiler and OpenGL installed on your machine. Clone the repository and compile the Main.cpp file.
 
-    Clone this repository: git clone https://github.com/your-username/your-repository.git
-    Make sure you have the necessary dependencies installed.
-    Build the project using a C++ compiler that supports C++11 standards.
-    Run the executable.
+Usage:
+After compiling the project, run the executable. The simulation will start, and you will see particles moving and colliding within the container sphere.
 
-Features
+------------------------------------------------------------------------------------------
+camera uses the mouse to rotate around, and WASD keys to move in the scene, 
+F: Refresh particles
+G: Decrease the number of particles by 1, with a minimum of 1
+H : Increase the number of particles by 1
+J : Reset the number of particles to 10
+O : Toggle wireframe mode
+P : Toggle pause
+I : Toggle background gradient
+------------------------------------------------------------------------------------------
 
-    Basic GLFW window creation and OpenGL context setup.
-    Loading of shaders, textures, and basic rendering pipeline.
-    Camera implementation for user interaction.
-    Simple 3D model (cube) with texture mapping.
+Known Issues:
 
-Controls
+Currently, there is a known issue where the main container sphere is not visible. We are aware of this issue and are working on a fix. However, this does not affect the functionality of the particle collisions.
+Elastic Collision
+In this project, an elastic collision is one where the total kinetic energy of the system (the particles and the container) is conserved before and after the collision. This means that no energy is lost to heat, sound, or any other form of energy. In the context of this simulation, it means that when two particles collide, they will bounce off each other and continue moving, their combined energy remaining constant.
 
-    Use arrow keys for camera movement (up, down, left, right).
-    Use mouse movement for camera rotation.
-    Scroll wheel for zooming in and out.
+Sphere Generation:
 
-Directory Structure
+The spheres in this simulation, both the particles and the container, are generated mathematically using the equation of a sphere in 3D space. This equation is x² + y² + z² = r², where (x, y, z) are the coordinates of any point on the sphere, and r is the radius of the sphere. By varying the radius and the center point, we can generate spheres of different sizes and at different positions.
 
-    res/Textures: Directory for storing texture files.
-    default.vert, default.frag: Vertex and fragment shader files.
-    MyTexture.h, MyShader.h, VAO.h, VBO.h, EBO.h, Camera.h: Custom C++ classes.
+
+Please note that this README is a general guide. For specific details about the code and its implementation, refer to the comments in the Main.cpp file.
+
