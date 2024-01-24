@@ -1,5 +1,3 @@
-// Particles.h
-
 #ifndef PARTICLES_H
 #define PARTICLES_H
 
@@ -22,9 +20,13 @@ public:
     float getRadius() const;
     void setRadius(float rad);
 
+    glm::vec3 getRotationAngles() const; // Getter for rotation angles
+    void setRotationAngles(const glm::vec3& angles); // Setter for rotation angles
+
 private:
     glm::vec3 position;
     glm::vec3 velocity;
+    glm::vec3 rotationAngles; // Added rotation angles property
     float radius;
 
     float mass; // Added mass property for better collision response

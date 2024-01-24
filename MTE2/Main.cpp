@@ -15,7 +15,7 @@
 void CheckOpenGLError(const char* operation) {
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
-        std::cerr << "OpenGL error in " << operation << ": " << error << std::endl;
+        std::cerr << "OpenGL error:  " << operation << ": " << error << std::endl;
     }
 }
 
@@ -27,11 +27,10 @@ const int numSphereRings = 20;
 
 const int numParticleSegments = 20;
 const int numParticleRings = 20;
-
 std::vector<GLfloat> sphereVertices;
 std::vector<GLuint> sphereIndices;
 
-void generateSphere() {
+void generateSphere(bool useNormalsForColor = false) {
     float phi, theta;
 
     for (int ring = 0; ring <= numSphereRings; ++ring) {
@@ -57,6 +56,22 @@ void generateSphere() {
             // Texture coordinates
             sphereVertices.push_back(static_cast<float>(segment) / numSphereSegments);
             sphereVertices.push_back(static_cast<float>(ring) / numSphereRings);
+
+            // Color based on normals (odd:red, even:blue)
+            if (useNormalsForColor) {
+                if (segment % 2 == 0) {
+                    // Even segment
+                    sphereVertices.push_back(0.0f);  // Red
+                    sphereVertices.push_back(0.0f);  // Green
+                    sphereVertices.push_back(0.0f);  // Blue
+                }
+                else {
+                    // Odd segment
+                    sphereVertices.push_back(0.0f);  // Red
+                    sphereVertices.push_back(0.0f);  // Green
+                    sphereVertices.push_back(0.0f);  // Blue
+                }
+            }
         }
     }
 
@@ -79,7 +94,7 @@ void generateSphere() {
 std::vector<GLfloat> ParticleVertices;
 std::vector<GLuint> ParticleIndices;
 
-void generateParticle() {
+void generateParticle(bool useNormalsForColor = false) {
     float phi, theta;
 
     for (int ring = 0; ring <= numParticleRings; ++ring) {
@@ -105,6 +120,22 @@ void generateParticle() {
             // Texture coordinates
             ParticleVertices.push_back(static_cast<float>(segment) / numParticleSegments);
             ParticleVertices.push_back(static_cast<float>(ring) / numParticleRings);
+
+            // Color based on normals (odd:red, even:blue)
+            if (useNormalsForColor) {
+                if (segment % 2 == 0) {
+                    // Even segment
+                    ParticleVertices.push_back(0.0f);  // Red
+                    ParticleVertices.push_back(0.0f);  // Green
+                    ParticleVertices.push_back(0.0f);  // Blue
+                }
+                else {
+                    // Odd segment
+                    ParticleVertices.push_back(0.0f);  // Red
+                    ParticleVertices.push_back(0.0f);  // Green
+                    ParticleVertices.push_back(0.0f);  // Blue
+                }
+            }
         }
     }
 
@@ -124,6 +155,7 @@ void generateParticle() {
     }
 }
 
+
 // Call this function once to generate sphere data
 
 GLfloat* sphereVerticesArray = sphereVertices.data();
@@ -136,7 +168,11 @@ std::vector<Particles> currentParticles;
 bool pauseParticles = false; // Flag to control particle motion		        //
 bool refreshParticles = false; // Flag to control particle refresh         //
 int numParticles = 10; // Initial number of particles                     //
-bool wireframeMode = false;                                              //
+bool wireframeMode = false;            
+bool drawBackgroundGradient = true;
+
+
+
 //______________________________________________________________________//
 
 
@@ -193,8 +229,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             // Toggle the pause flag
             pauseParticles = !pauseParticles;
         }
+        if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+            // Toggle the flag to enable/disable background gradient
+            drawBackgroundGradient = !drawBackgroundGradient;
+        }
 
     }
+}
+
+// Function to get current time in milliseconds
+long long getCurrentTimeMillis() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
 }
 
 int main() {
@@ -341,31 +388,70 @@ int main() {
 
     glBindVertexArray(0);
 
+    const int frameCountToAverage = 60; // Number of frames to average for FPS calculation
+    int frameCount = 0;
+    double totalFrameTime = 0.0;
+    long long lastFrameTime = getCurrentTimeMillis();
+
     CheckOpenGLError("before main loop");
     // Main rendering loop
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE); // Enable double buffering
+    glfwSwapInterval(0); // Disable V-Sync
+
     while (!glfwWindowShouldClose(window)) {
         CheckOpenGLError("before  ");
+        // Measure frame time
+        long long currentFrameTime = getCurrentTimeMillis();
+        double frameTime = static_cast<double>(currentFrameTime - lastFrameTime) / 1000.0;
+        lastFrameTime = currentFrameTime;
+
+        // Update total frame time and frame count for FPS calculation
+        totalFrameTime += frameTime;
+        frameCount++;
+
+        // If enough frames have passed, calculate and display FPS
+        if (frameCount >= frameCountToAverage) {
+            double averageFPS = frameCount / totalFrameTime;
+            std::ostringstream oss;
+            oss << "FPS: " << std::fixed << std::setprecision(2) << averageFPS;
+
+            // Print FPS in the same line without newline
+            std::cout << "\r" << oss.str() << std::flush;
+
+            // Reset frame count and total frame time for the next average
+            frameCount = 0;
+            totalFrameTime = 0.0;
+        }
 
         // Clear the color and depth buffers
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         CheckOpenGLError("glClear");
 
-        // Draw the background first
-        backgroundShader.Activate();
-        glDisable(GL_DEPTH_TEST);
+        // Draw the background gradient only if the flag is set
+        if (drawBackgroundGradient) {
+            backgroundShader.Activate();
+            glDisable(GL_DEPTH_TEST);
 
-        // Set the gradient colors in the shader
-        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorLeft"), 1, glm::value_ptr(glm::vec3(0.23f, 0.81f, 0.83f)));
-        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorMiddle"), 1, glm::value_ptr(glm::vec3(0.47f, 0.46f, 1.0f)));
-        glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorRight"), 1, glm::value_ptr(glm::vec3(0.79f, 0.61f, 1.0f)));
-        CheckOpenGLError("Setting gradient colors");
+            // Convert hexadecimal colors to RGB
+            glm::vec3 colorLeft = glm::vec3(167.0f / 255.0f, 197.0f / 255.0f, 132.0f / 255.0f);
+            glm::vec3 colorRight = glm::vec3(234.0f / 255.0f, 227.0f / 255.0f, 192.0f / 255.0f);
 
-        // Render the background quad
-        glBindVertexArray(quadVAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        CheckOpenGLError("Rendering background quad");
+            // Set the gradient colors in the shader
+            glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorLeft"), 1, glm::value_ptr(colorLeft));    // Left color
+            glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorMiddle"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));  // Middle color (white)
+            glUniform3fv(glGetUniformLocation(backgroundShader.ID, "colorRight"), 1, glm::value_ptr(colorRight));  // Right color
+            CheckOpenGLError("Setting gradient colors");
+
+
+            // Render the background quad
+            glBindVertexArray(quadVAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+            CheckOpenGLError("Rendering background quad");
+
+            glEnable(GL_DEPTH_TEST);
+        }
 
         // Enable wireframe mode if necessary
         if (wireframeMode) {
